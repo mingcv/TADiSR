@@ -110,3 +110,35 @@ def inspect_checkpoint(path: str | Path, variant: str = "auto") -> CheckpointRep
         valid=not errors,
         errors=tuple(errors),
     )
+
+
+def strict_load_joint_decoder(path: str | Path, variant: str = "auto") -> None:
+    """Construct the released joint decoder and require an exact state-dict match.
+
+    This checks the adapter-specific architecture without downloading a 6B base
+    model. It intentionally runs on CPU and raises on any missing or unexpected
+    parameter.
+    """
+    checkpoint_path = Path(path).expanduser().resolve()
+    state = _load(checkpoint_path)
+    detected = detect_variant(state)
+    selected = detected if variant == "auto" else variant
+    if selected not in _REQUIRED_GROUPS or selected != detected:
+        raise ValueError(f"Checkpoint layout {detected!r} does not match requested variant {selected!r}.")
+
+    decoder_key = "js_decoder" if selected == "cogview4" else (
+        "js_decoder" if "js_decoder" in state else "mi_decoder"
+    )
+    decoder_state = state.get(decoder_key)
+    if not isinstance(decoder_state, Mapping):
+        raise ValueError(f"Missing joint decoder state dict: {decoder_key}.")
+
+    if selected == "cogview4":
+        from tadisr_pipelines import JointSegmentationDecoders
+
+        decoder = JointSegmentationDecoders()
+    else:
+        from tadisr.kolors_decoder import MaskInteractionDecoderKolors640M
+
+        decoder = MaskInteractionDecoderKolors640M()
+    decoder.load_state_dict(decoder_state, strict=True)
