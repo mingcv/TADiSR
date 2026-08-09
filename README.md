@@ -1,9 +1,10 @@
 # TADiSR: Text-Aware Real-World Image Super-Resolution
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2506.04641">Paper</a> |
-  <a href="https://github.com/mingcv/TADiSR">Code</a> |
-  <a href="https://huggingface.co/huqiming513/TADiSR-Models">Models</a>
+  <a href="https://arxiv.org/abs/2506.04641">&#128196; Paper</a> |
+  <a href="https://github.com/mingcv/TADiSR">&#128187; Code</a> |
+  <a href="#visual-results">&#128444;&#65039; Visual Results</a> |
+  <a href="https://huggingface.co/huqiming513/TADiSR-Models">&#129303; Models &amp; Data</a>
 </p>
 
 <p align="center">
@@ -43,7 +44,9 @@ TADiSR has three coupled components:
 
 The paper trains a 4x model with a fixed diffusion timestep of 200 and combines
 pixel, LPIPS, OCR-region edge, segmentation, Dice, focal, and mask-guided
-reconstruction losses. Please see the paper for the exact protocol and scores.
+reconstruction losses.
+
+## Visual Results
 
 <p align="center">
   <img src="assets/figure_overview.jpg" width="92%" alt="Qualitative TADiSR comparison">
@@ -51,12 +54,23 @@ reconstruction losses. Please see the paper for the exact protocol and scores.
   <sub>Qualitative comparison and cross-attention response before and after fine-tuning.</sub>
 </p>
 
+## Paper Results
+
+The following results are reported for the paper's Kolors-based TADiSR model at
+4x magnification. `OCR-A` is the OCR recognition accuracy evaluated on
+corresponding text regions.
+
+| Benchmark | PSNR | SSIM | LPIPS | FID | OCR-A |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| FTSR-TE | 25.49 | 0.736 | 0.152 | 32.13 | 0.662 |
+| Real-CE-val (aligned) | 24.02 | 0.829 | 0.100 | 38.01 | 0.882 |
+
 ## Model Zoo
 
-| Model | Base model | Training data | Checkpoint | SHA256 | Notes |
-| --- | --- | --- | --- | --- | --- |
-| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | [download](https://huggingface.co/huqiming513/TADiSR-Models) | `4baef8b1...13251e7f7` | Paper model, 187 MB adapter checkpoint |
-| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | [download](https://huggingface.co/huqiming513/TADiSR-Models) | `7cec8d09...e0baf5e0` | Recommended Chinese-text model, 749 MB adapter checkpoint |
+| Model | Base model | Training data | Size | Checkpoint | Notes |
+| --- | --- | --- | ---: | --- | --- |
+| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | 187 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_kolors_ftsr_526000.pkl) | Paper model |
+| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | 749 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_cogview4_realce_17500.pkl) | Recommended for Chinese text |
 
 The complete file names, byte sizes, and full checksums are in
 [`checkpoints/manifest.json`](checkpoints/manifest.json). Adapter checkpoints
@@ -68,10 +82,23 @@ are deliberately stored outside Git; base-model licenses continue to apply.
 conda create -n tadisr python=3.10 -y
 conda activate tadisr
 
-# Select the PyTorch command matching your CUDA runtime at pytorch.org first.
+# Optional: use the Tsinghua PyPI mirror for project dependencies.
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+
+# GPU (CUDA 12.1): use the official PyTorch wheel index.
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 ```
+
+For a CPU-only environment, replace the PyTorch command with:
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+```
+
+Use `--timeout 86400` with `pip install` on unreliable connections. The
+repository's `requirements.txt` includes all runtime imports, including the
+ChatGLM tokenizer dependency `sentencepiece`.
 
 The CogView4 inference implementation requires a recent Diffusers build with
 `CogView4Transformer2DModel`. We tested the code contract against Diffusers
@@ -90,7 +117,7 @@ python scripts/download_base_model.py --model cogview4 --output-dir weights/CogV
 # Then verify it before GPU construction.
 python scripts/validate_checkpoint.py \
   --checkpoint checkpoints/tadisr_cogview4_realce_17500.pkl \
-  --variant cogview4
+  --variant cogview4 --strict-decoder
 
 python scripts/verify_checksums.py \
   --checkpoint checkpoints/tadisr_cogview4_realce_17500.pkl \
@@ -149,6 +176,8 @@ accelerate launch train_cogview4_realce.py \
   --output_dir output/TADiSR/TADiSR_CogView4_RealCE
 ```
 
+We do not distribute FTSR, Real-CE image files, PP-OCR weights, or either base
+model in this repository.
 
 ## Repository Map
 
@@ -157,6 +186,7 @@ accelerate launch train_cogview4_realce.py \
 | `tadisr/checkpoint.py` | CPU-safe checkpoint inspection and compatibility contract |
 | `tadisr/tiling.py` | Overlap-aware, weighted tiled inference |
 | `tadisr/inference.py` | Public CogView4 model-loading and image I/O API |
+| `tadisr/kolors_decoder.py` | Exact Kolors FTSR mask-decoder architecture |
 | `tadisr_pipelines.py` | Diffusion/VAE and joint segmentation implementation |
 | `scripts/infer.py` | Single-image CLI inference |
 | `scripts/validate_checkpoint.py` | State-dict structure validation |
@@ -170,6 +200,7 @@ Released adapters are for research use and remain subject to the licenses of
 their base models. In particular, consult the Kolors license for commercial-use
 terms. This implementation builds on [Diffusers](https://github.com/huggingface/diffusers),
 [PEFT](https://github.com/huggingface/peft), CogView4, Kolors, and PP-OCR.
+The figures in `assets/` are reproduced from the accompanying paper.
 
 ## Citation
 
