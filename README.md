@@ -149,8 +149,6 @@ accelerate launch train_cogview4_realce.py \
   --output_dir output/TADiSR/TADiSR_CogView4_RealCE
 ```
 
-We do not distribute FTSR, Real-CE image files, PP-OCR weights, or either base
-model in this repository.
 
 ## Repository Map
 
@@ -172,15 +170,16 @@ Released adapters are for research use and remain subject to the licenses of
 their base models. In particular, consult the Kolors license for commercial-use
 terms. This implementation builds on [Diffusers](https://github.com/huggingface/diffusers),
 [PEFT](https://github.com/huggingface/peft), CogView4, Kolors, and PP-OCR.
-The figures in `assets/` are reproduced from the accompanying paper.
 
 ## Citation
 
 ```bibtex
-@article{hu2025tadisr,
-  title={Text-Aware Real-World Image Super-Resolution via Diffusion Model with Joint Segmentation Decoders},
+@article{hu2026text,
+  title={Text-aware real-world image super-resolution via diffusion model with joint segmentation decoders},
   author={Hu, Qiming and Fan, Linlong and Luo, Yiyan and Yu, Yuhang and Guo, Xiaojie and Fan, Qingnan},
-  journal={arXiv preprint arXiv:2506.04641},
-  year={2025}
+  journal={Advances in Neural Information Processing Systems},
+  volume={38},
+  pages={61522--61543},
+  year={2026}
 }
 ```
