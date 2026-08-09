@@ -49,9 +49,15 @@ reconstruction losses.
 ## Visual Results
 
 <p align="center">
-  <img src="assets/figure_overview.jpg" width="92%" alt="Qualitative TADiSR comparison">
+  <img src="assets/figure3_comparison.jpg" width="96%" alt="Figure 3: qualitative comparison on Chinese document text">
   <br>
-  <sub>Qualitative comparison and cross-attention response before and after fine-tuning.</sub>
+  <sub>Fig. 3. Qualitative comparison on Chinese document text. TADiSR restores both the text strokes and the surrounding structure more faithfully.</sub>
+</p>
+
+<p align="center">
+  <img src="assets/figure4_comparison.jpg" width="96%" alt="Figure 4: qualitative comparison on road signs">
+  <br>
+  <sub>Fig. 4. Qualitative comparison on road-sign text. TADiSR preserves Chinese characters and Roman letters under real-world blur.</sub>
 </p>
 
 ## Paper Results
