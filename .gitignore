@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 .venv/
 venv/
+.idea/
 
 # Downloaded base models, datasets, runs, and released binary checkpoints.
 /weights/*
@@ -18,3 +19,4 @@ venv/
 !/weights/.gitkeep
 !/checkpoints/.gitkeep
 !assets/*.jpg
+/third_party/ppocr/weights/

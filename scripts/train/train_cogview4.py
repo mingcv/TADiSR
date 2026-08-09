@@ -1,5 +1,12 @@
 import gc
 import os
+import sys
+from pathlib import Path
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+for path in (REPOSITORY_ROOT, REPOSITORY_ROOT / "third_party"):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 import diffusers
 import lpips
@@ -15,12 +22,12 @@ from accelerate.utils import set_seed
 from diffusers.optimization import get_scheduler
 from tqdm.auto import tqdm
 
-import saver
-from losses import get_edge_loss_bbox, DifferentiableEdgeDetector
-from metrics import PSNR, SSIM
+from tadisr.training import visualization as saver
+from tadisr.training.losses import get_edge_loss_bbox, DifferentiableEdgeDetector
+from tadisr.training.metrics import PSNR, SSIM
 from ppocr.ppocr_model import TextSystem
-from tadisr_pipelines import CogView4Pipeline
-from utils.training_utils import parse_args_paired_training, FTSR768Dataset, FTSR512Dataset
+from tadisr.pipelines import CogView4Pipeline
+from tadisr.training.datasets import parse_args_paired_training, FTSR768Dataset, FTSR512Dataset
 
 
 def print_in_main_process(accelerator, text):
@@ -123,7 +130,15 @@ def main(args):
         os.makedirs(os.path.join(args.output_dir, "checkpoints"), exist_ok=True)
         os.makedirs(os.path.join(args.output_dir, "eval"), exist_ok=True)
 
-    net_pix2pix = CogView4Pipeline()
+    if not args.pretrained_model_name_or_path or not args.prompt_embeddings:
+        raise ValueError("--pretrained_model_name_or_path and --prompt_embeddings are required for CogView4 training.")
+    net_pix2pix = CogView4Pipeline(
+        ckpt_dir=args.pretrained_model_name_or_path,
+        prompt_path=args.prompt_embeddings,
+        device=accelerator.device,
+    )
+    if args.resume_checkpoint:
+        net_pix2pix.load_model(args.resume_checkpoint)
     net_pix2pix.set_train()
 
     net_lpips = lpips.LPIPS(net='vgg').cuda()
@@ -139,6 +154,15 @@ def main(args):
     for n, _p in net_pix2pix.vae.named_parameters():
         if "lora" in n and "vae_skip" in n:
             assert _p.requires_grad
+            layers_to_opt.append(_p)
+
+    layers_to_opt = layers_to_opt + list(net_pix2pix.vae.decoder.skip_conv_1.parameters()) + \
+                    list(net_pix2pix.vae.decoder.skip_conv_2.parameters()) + \
+                    list(net_pix2pix.vae.decoder.skip_conv_3.parameters()) + \
+                    list(net_pix2pix.vae.decoder.skip_conv_4.parameters())
+
+    for n, _p in net_pix2pix.js_decoder.named_parameters():
+        if _p.requires_grad:
             layers_to_opt.append(_p)
 
     optimizer = torch.optim.AdamW(layers_to_opt, lr=args.learning_rate,
@@ -158,11 +182,9 @@ def main(args):
 
     ocr_model = TextSystem()
     # Prepare everything with our `accelerator`.
-    net_pix2pix, optimizer, dl_train, lr_scheduler = accelerator.prepare(
-        net_pix2pix, optimizer, dl_train, lr_scheduler
+    net_pix2pix, optimizer, dl_train, lr_scheduler, net_lpips = accelerator.prepare(
+        net_pix2pix, optimizer, dl_train, lr_scheduler, net_lpips
     )
-
-    net_lpips = accelerator.prepare(net_lpips)
 
     weight_dtype = torch.float32
 
@@ -191,18 +213,18 @@ def main(args):
                 boxes, rec_res = ocr_model(mask_gt_ori[0])
                 # print(boxes, rec_res)
                 # forward pass
-                sr_image = net_pix2pix(lr_image)
+                sr_image, mask_pred = net_pix2pix(lr_image)
 
                 loss_l2 = F.mse_loss(sr_image, hr_image, reduction="mean") * args.lambda_l2
                 loss_lpips = net_lpips(sr_image, hr_image).mean() * args.lambda_lpips
                 loss_edge = get_edge_loss_bbox(edge_detector, sr_image, hr_image, [boxes])
                 loss_edge = loss_edge * 5.0
 
-                # loss_mask = F.mse_loss(mask_pred, mask_gt, reduction="mean") * args.lambda_l2
-                # loss_mask_dice, loss_mask_focal = mask_losses(mask_pred, mask_gt)
-                # loss_mask_focal = loss_mask_focal * 10.0
+                loss_mask = F.mse_loss(mask_pred, mask_gt, reduction="mean") * args.lambda_l2
+                loss_mask_dice, loss_mask_focal = mask_losses(mask_pred, mask_gt)
+                loss_mask_focal = loss_mask_focal * 10.0
 
-                loss = loss_l2 + loss_lpips + loss_edge  # + loss_mask + loss_mask_dice + loss_mask_focal
+                loss = loss_l2 + loss_lpips + loss_edge + loss_mask + loss_mask_dice + loss_mask_focal
 
                 accelerator.backward(loss, retain_graph=False)
                 if accelerator.sync_gradients:
@@ -210,6 +232,8 @@ def main(args):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad(set_to_none=args.set_grads_to_none)
+
+                del sr_image, mask_pred
 
             # Checks if the accelerator has performed an optimization step behind the scenes
             if accelerator.sync_gradients:
@@ -220,11 +244,11 @@ def main(args):
                     # log all the losses
                     logs["loss_l2"] = loss_l2.detach().cpu().item()
                     logs["loss_lpips"] = loss_lpips.detach().cpu().item()
-                    # logs["loss_mask"] = loss_mask.detach().cpu().item()
+                    logs["loss_mask"] = loss_mask.detach().cpu().item()
                     logs["loss_edge"] = loss_edge.detach().cpu().item()
 
-                    # logs["loss_mask_dice"] = loss_mask_dice.detach().cpu().item()
-                    # logs["loss_mask_focal"] = loss_mask_focal.detach().cpu().item()
+                    logs["loss_mask_dice"] = loss_mask_dice.detach().cpu().item()
+                    logs["loss_mask_focal"] = loss_mask_focal.detach().cpu().item()
 
                     progress_bar.set_postfix(**logs)
 
@@ -247,7 +271,7 @@ def main(args):
                             B, C, H, W = lr_image.shape
                             assert B == 1, "Use batch size 1 for eval."
                             with torch.no_grad():
-                                sr_image = net_pix2pix(lr_image)
+                                sr_image, mask_pred = net_pix2pix(lr_image)
 
                                 psnr = PSNR(sr_image, hr_image)
                                 ssim = SSIM(sr_image, hr_image).item()
@@ -261,7 +285,7 @@ def main(args):
                                     saver.save_image(sr_image, "sr_image")
                                     saver.save_image(hr_image, "hr_image")
                                     saver.save_image(mask_gt, "mask_gt")
-                                    # saver.save_image(mask_pred, "mask_pred")
+                                    saver.save_image(mask_pred, "mask_pred")
 
                                 gc.collect()
                                 torch.cuda.empty_cache()

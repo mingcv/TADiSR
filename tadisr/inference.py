@@ -24,7 +24,7 @@ def load_cogview4(config: CogView4Config):
     report = inspect_checkpoint(config.checkpoint, variant="cogview4")
     if not report.valid:
         raise RuntimeError("Invalid checkpoint: " + "; ".join(report.errors))
-    from tadisr_pipelines import CogView4Pipeline
+    from tadisr.pipelines import CogView4Pipeline
 
     pipeline = CogView4Pipeline(
         ckpt_dir=str(config.base_model),

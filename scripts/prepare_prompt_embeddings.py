@@ -4,6 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
 
 
 def main() -> None:
@@ -26,7 +32,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    from tadisr_pipelines import CogView4TextEncoderPipeline
+    from tadisr.pipelines import CogView4TextEncoderPipeline
 
     encoder = CogView4TextEncoderPipeline(ckpt_dir=args.base_model, device=args.device)
     encoder.prepare_text_embed(args.prompt, args.negative_prompt, args.output)

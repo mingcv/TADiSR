@@ -12,7 +12,7 @@ from diffusers.image_processor import VaeImageProcessor
 from diffusers.models.activations import get_activation
 from peft import LoraConfig
 from transformers import AutoTokenizer, GlmModel
-from tokenization_chatglm import ChatGLMTokenizer
+from tadisr.chatglm_tokenizer import ChatGLMTokenizer
 
 try:
     from diffusers.models.unet_2d_blocks import UpDecoderBlock2D

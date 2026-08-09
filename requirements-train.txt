@@ -1,0 +1,7 @@
+-r requirements.txt
+opencv-python>=4.10.0
+lpips>=0.1.4
+PyYAML>=6.0.0
+scikit-image>=0.24.0
+scipy>=1.13.0
+six>=1.16.0

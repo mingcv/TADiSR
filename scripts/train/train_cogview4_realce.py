@@ -1,5 +1,12 @@
 import gc
 import os
+import sys
+from pathlib import Path
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+for path in (REPOSITORY_ROOT, REPOSITORY_ROOT / "third_party"):
+    if str(path) not in sys.path:
+        sys.path.insert(0, str(path))
 
 import diffusers
 import lpips
@@ -15,12 +22,12 @@ from accelerate.utils import set_seed
 from diffusers.optimization import get_scheduler
 from tqdm.auto import tqdm
 
-import saver
-from losses import get_edge_loss_bbox, DifferentiableEdgeDetector
-from metrics import PSNR, SSIM
+from tadisr.training import visualization as saver
+from tadisr.training.losses import get_edge_loss_bbox, DifferentiableEdgeDetector
+from tadisr.training.metrics import PSNR, SSIM
 from ppocr.ppocr_model import TextSystem
-from tadisr_pipelines import CogView4Pipeline
-from utils.training_utils import parse_args_paired_training, FTSRRealCEDatasetScaled, \
+from tadisr.pipelines import CogView4Pipeline
+from tadisr.training.datasets import parse_args_paired_training, FTSRRealCEDatasetScaled, \
     FTSRRealCEDataset512
 
 

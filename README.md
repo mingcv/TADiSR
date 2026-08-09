@@ -67,10 +67,10 @@ corresponding text regions.
 
 ## Model Zoo
 
-| Model | Base model | Training data | Size | Checkpoint |
-| --- | --- | --- | ---: | --- |
-| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | 187 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_kolors_ftsr_526000.pkl) |
-| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | 749 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_cogview4_realce_17500.pkl) |
+| Model | Base model | Training data | Size | Checkpoint | Notes |
+| --- | --- | --- | ---: | --- | --- |
+| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | 187 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_kolors_ftsr_526000.pkl) | Paper model |
+| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | 749 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_cogview4_realce_17500.pkl) | Recommended for Chinese text |
 
 The complete file names, byte sizes, and full checksums are in
 [`checkpoints/manifest.json`](checkpoints/manifest.json). Adapter checkpoints
@@ -124,7 +124,7 @@ python scripts/verify_checksums.py \
   --model tadisr-cogview4-realce
 
 # Create the deterministic quality-prompt embedding required by the released model.
-python prepare_prompt_embeddings.py \
+python scripts/prepare_prompt_embeddings.py \
   --base-model weights/CogView4 \
   --output weights/CogView4/saved_prompt_tokens_nocfg.pt
 ```
@@ -160,17 +160,19 @@ text regions.
 The original training scripts are retained for experiment reproduction:
 
 ```bash
-accelerate launch train_cogview4.py \
+pip install -r requirements-train.txt
+
+accelerate launch scripts/train/train_cogview4.py \
   --train_folders /path/to/FTSR \
   --pretrained_model_name_or_path weights/CogView4 \
   --prompt_embeddings weights/CogView4/saved_prompt_tokens_nocfg.pt \
   --output_dir output/TADiSR/TADiSR_CogView4
 
-accelerate launch train_cogview4_realce.py \
+accelerate launch scripts/train/train_cogview4_realce.py \
   --train_folders /path/to/FTSR \
   --test_folder /path/to/RealCE \
-  --realce_train_list data/RealCE/aligned_list_train.txt \
-  --realce_eval_list data/RealCE/aligned_list_eval.txt \
+  --realce_train_list /path/to/RealCE/aligned_list_train.txt \
+  --realce_eval_list /path/to/RealCE/aligned_list_eval.txt \
   --pretrained_model_name_or_path weights/CogView4 \
   --prompt_embeddings weights/CogView4/saved_prompt_tokens_nocfg.pt \
   --output_dir output/TADiSR/TADiSR_CogView4_RealCE
@@ -187,8 +189,11 @@ model in this repository.
 | `tadisr/tiling.py` | Overlap-aware, weighted tiled inference |
 | `tadisr/inference.py` | Public CogView4 model-loading and image I/O API |
 | `tadisr/kolors_decoder.py` | Exact Kolors FTSR mask-decoder architecture |
-| `tadisr_pipelines.py` | Diffusion/VAE and joint segmentation implementation |
+| `tadisr/pipelines.py` | Diffusion/VAE and joint segmentation implementation |
+| `tadisr/training/` | Training datasets, losses, metrics, and visualizations |
 | `scripts/infer.py` | Single-image CLI inference |
+| `scripts/train/` | FTSR and FTSR + Real-CE training entry points |
+| `third_party/ppocr/` | OCR implementation used only by training |
 | `scripts/validate_checkpoint.py` | State-dict structure validation |
 | `scripts/verify_checksums.py` | SHA256 and byte-size verification against the release manifest |
 | `checkpoints/manifest.json` | Release filenames, sizes, and SHA256 checksums |

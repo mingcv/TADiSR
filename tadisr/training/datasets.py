@@ -14,7 +14,7 @@ from PIL import Image
 from torch.utils import data as data
 from torchvision import transforms
 from PIL import Image, ImageFilter
-from utils.degradations import circular_lowpass_kernel, random_mixed_kernels
+from tadisr.training.degradations import circular_lowpass_kernel, random_mixed_kernels
 
 
 def img2tensor(imgs, bgr2rgb=True, float32=True):

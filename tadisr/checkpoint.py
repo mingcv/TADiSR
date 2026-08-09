@@ -134,7 +134,7 @@ def strict_load_joint_decoder(path: str | Path, variant: str = "auto") -> None:
         raise ValueError(f"Missing joint decoder state dict: {decoder_key}.")
 
     if selected == "cogview4":
-        from tadisr_pipelines import JointSegmentationDecoders
+        from tadisr.pipelines import JointSegmentationDecoders
 
         decoder = JointSegmentationDecoders()
     else:

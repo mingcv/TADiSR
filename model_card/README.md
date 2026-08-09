@@ -40,10 +40,12 @@ licenses.
 ## Citation
 
 ```bibtex
-@article{hu2025tadisr,
-  title={Text-Aware Real-World Image Super-Resolution via Diffusion Model with Joint Segmentation Decoders},
+@article{hu2026text,
+  title={Text-aware real-world image super-resolution via diffusion model with joint segmentation decoders},
   author={Hu, Qiming and Fan, Linlong and Luo, Yiyan and Yu, Yuhang and Guo, Xiaojie and Fan, Qingnan},
-  journal={arXiv preprint arXiv:2506.04641},
-  year={2025}
+  journal={Advances in Neural Information Processing Systems},
+  volume={38},
+  pages={61522--61543},
+  year={2026}
 }
 ```
