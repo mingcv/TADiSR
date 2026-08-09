@@ -1,0 +1,20 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Downloaded base models, datasets, runs, and released binary checkpoints.
+/weights/*
+/data/
+/output/
+/checkpoints/*
+/results/
+/runs/
+
+# Keep lightweight repository structure and public metadata.
+!/weights/.gitkeep
+!/checkpoints/.gitkeep
+!assets/*.jpg

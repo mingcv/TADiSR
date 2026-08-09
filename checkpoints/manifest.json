@@ -1,0 +1,23 @@
+{
+  "format_version": 1,
+  "models": [
+    {
+      "id": "tadisr-cogview4-realce",
+      "variant": "cogview4",
+      "base_model": "zai-org/CogView4-6B",
+      "filename": "tadisr_cogview4_realce_17500.pkl",
+      "bytes": 785453495,
+      "sha256": "7cec8d0917305037cbafcb1b1bf81062add1613b561f5d7e2d1e599fe0baf5e0",
+      "source_checkpoint": "output/TADiSR/TADiSR_CogView4_RealCE/checkpoints/model_17500.pkl"
+    },
+    {
+      "id": "tadisr-kolors-ftsr",
+      "variant": "kolors",
+      "base_model": "Kwai-Kolors/Kolors",
+      "filename": "tadisr_kolors_ftsr_526000.pkl",
+      "bytes": 195866454,
+      "sha256": "4baef8b1fad319caf7d606c82539035c6fc9483c81f94601377c64813251e7f7",
+      "source_checkpoint": "external/Kolors_VAE_Lora_FTSR_Heatmap_Fine_S1_Focal_768_OCR/checkpoints/model_526000.pkl"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use TADiSR, please cite the paper."
+title: "TADiSR: Text-Aware Real-World Image Super-Resolution"
+type: software
+authors:
+  - family-names: Hu
+    given-names: Qiming
+  - family-names: Fan
+    given-names: Linlong
+  - family-names: Luo
+    given-names: Yiyan
+  - family-names: Yu
+    given-names: Yuhang
+  - family-names: Guo
+    given-names: Xiaojie
+  - family-names: Fan
+    given-names: Qingnan
+repository-code: "https://github.com/mingcv/TADiSR"
+url: "https://arxiv.org/abs/2506.04641"
+date-released: 2025-06-05
