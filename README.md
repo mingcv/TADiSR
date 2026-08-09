@@ -67,10 +67,10 @@ corresponding text regions.
 
 ## Model Zoo
 
-| Model | Base model | Training data | Size | Checkpoint | Notes |
-| --- | --- | --- | ---: | --- | --- |
-| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | 187 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_kolors_ftsr_526000.pkl) | Paper model |
-| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | 749 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_cogview4_realce_17500.pkl) | Recommended for Chinese text |
+| Model | Base model | Training data | Size | Checkpoint |
+| --- | --- | --- | ---: | --- |
+| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | 187 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_kolors_ftsr_526000.pkl) |
+| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | 749 MB | [ckpt](https://huggingface.co/huqiming513/TADiSR-Models/blob/main/tadisr_cogview4_realce_17500.pkl) |
 
 The complete file names, byte sizes, and full checksums are in
 [`checkpoints/manifest.json`](checkpoints/manifest.json). Adapter checkpoints
