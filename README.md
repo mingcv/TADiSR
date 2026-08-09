@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2506.04641">Paper</a> |
   <a href="https://github.com/mingcv/TADiSR">Code</a> |
-  <a href="https://huggingface.co/mingcv/TADiSR">Models</a>
+  <a href="https://huggingface.co/huqiming513/TADiSR-Models">Models</a>
 </p>
 
 <p align="center">
@@ -55,8 +55,8 @@ reconstruction losses. Please see the paper for the exact protocol and scores.
 
 | Model | Base model | Training data | Checkpoint | SHA256 | Notes |
 | --- | --- | --- | --- | --- | --- |
-| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | [download](https://huggingface.co/mingcv/TADiSR) | `4baef8b1...13251e7f7` | Paper model, 187 MB adapter checkpoint |
-| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | [download](https://huggingface.co/mingcv/TADiSR) | `7cec8d09...e0baf5e0` | Recommended Chinese-text model, 749 MB adapter checkpoint |
+| TADiSR-Kolors | [Kwai-Kolors/Kolors](https://huggingface.co/Kwai-Kolors/Kolors) | FTSR | [download](https://huggingface.co/huqiming513/TADiSR-Models) | `4baef8b1...13251e7f7` | Paper model, 187 MB adapter checkpoint |
+| TADiSR-CogView4-RealCE | [zai-org/CogView4-6B](https://huggingface.co/zai-org/CogView4-6B) | FTSR + Real-CE | [download](https://huggingface.co/huqiming513/TADiSR-Models) | `7cec8d09...e0baf5e0` | Recommended Chinese-text model, 749 MB adapter checkpoint |
 
 The complete file names, byte sizes, and full checksums are in
 [`checkpoints/manifest.json`](checkpoints/manifest.json). Adapter checkpoints
@@ -86,7 +86,7 @@ The base model and TADiSR adapter are separate downloads.
 # CogView4 base model: approximately 31 GB.
 python scripts/download_base_model.py --model cogview4 --output-dir weights/CogView4
 
-# Download tadisr_cogview4_realce_17500.pkl from mingcv/TADiSR on Hugging Face.
+# Download tadisr_cogview4_realce_17500.pkl from huqiming513/TADiSR-Models on Hugging Face.
 # Then verify it before GPU construction.
 python scripts/validate_checkpoint.py \
   --checkpoint checkpoints/tadisr_cogview4_realce_17500.pkl \
