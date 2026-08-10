@@ -184,9 +184,6 @@ accelerate launch scripts/train/train_cogview4_realce.py \
   --output_dir output/TADiSR/TADiSR_CogView4_RealCE
 ```
 
-We do not distribute FTSR, Real-CE image files, PP-OCR weights, or either base
-model in this repository.
-
 ## Repository Map
 
 | Path | Purpose |
