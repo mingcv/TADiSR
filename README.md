@@ -1,4 +1,4 @@
-# TADiSR: Text-Aware Real-World Image Super-Resolution
+# TADiSR: Text-Aware Real-World Image Super-Resolution via Diffusion Model with Joint Segmentation Decoders
 
 <p align="center">
   <a href="https://arxiv.org/abs/2506.04641">&#128196; Paper</a> |
